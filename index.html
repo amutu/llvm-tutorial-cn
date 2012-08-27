@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Kaleidoscope：用LLVM开发新语言 &mdash; LLVM教程</title>
+    <title>用LLVM开发新语言 &mdash; LLVM教程</title>
     
     <link rel="stylesheet" href="_static/rosefinch.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -28,7 +28,7 @@
     <script type="text/javascript" src="_static/bootstrap.min.js"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="top" title="LLVM教程" href="#" />
-    <link rel="next" title="第一章 教程介绍与词法分析器" href="chapter-1.html" /> 
+    <link rel="next" title="第一章 教程简介及词法分析器" href="chapter-1.html" /> 
   </head>
   <body><div class="navbar navbar-fixed-top navbar-inverse">
     <div class="navbar-inner">
@@ -47,19 +47,19 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="kaleidoscope-llvm">
-<h1>Kaleidoscope：用LLVM开发新语言<a class="headerlink" href="#kaleidoscope-llvm" title="永久链接至标题">¶</a></h1>
+  <div class="section" id="llvm">
+<h1>用LLVM开发新语言<a class="headerlink" href="#llvm" title="永久链接至标题">¶</a></h1>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">原文:</th><td class="field-body"><a class="reference external" href="http://llvm.org/docs/tutorial/index.html">LLVM Tutorial</a></td>
+<tr class="field-odd field"><th class="field-name">原文:</th><td class="field-body"><a class="reference external" href="http://llvm.org/docs/tutorial/index.html">Implementing a Language with LLVM</a></td>
 </tr>
 <tr class="field-even field"><th class="field-name">作者:</th><td class="field-body"><a class="reference external" href="mailto:sabre&#37;&#52;&#48;nondot&#46;org">Chris Lattner</a></td>
 </tr>
 <tr class="field-odd field"><th class="field-name">译者:</th><td class="field-body"><a class="reference external" href="mailto:rhythm&#46;mail&#37;&#52;&#48;gmail&#46;com">连城</a></td>
 </tr>
-<tr class="field-even field"><th class="field-name">许可协议:</th><td class="field-body"><a class="reference external" href="http://creativecommons.org/licenses/by-nc-nd/2.5/cn/">知识共享“署名、非商业性使用、禁止演绎”2.5中国大陆许可协议</a>（<a class="reference external" href="http://creativecommons.org/licenses/by-nc-nd/2.5/cn/legalcode">全文</a>） <img alt="cc" src="_images/cc.png" /></td>
+<tr class="field-even field"><th class="field-name">许可协议:</th><td class="field-body"><a class="reference external" href="http://creativecommons.org/licenses/by-nc-nd/2.5/cn/">署名 2.5 中国大陆许可协议</a>（<a class="reference external" href="http://creativecommons.org/licenses/by-nc-nd/2.5/cn/legalcode">全文</a>） <img alt="cc" src="_images/cc.png" /></td>
 </tr>
 </tbody>
 </table>
@@ -67,7 +67,7 @@
 <p class="topic-title first">目录</p>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="chapter-1.html">第一章 教程介绍与词法分析器</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="chapter-1.html">第一章 教程简介及词法分析器</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="chapter-1.html#id3">教程介绍</a></li>
 <li class="toctree-l2"><a class="reference internal" href="chapter-1.html#id7">基础语言</a></li>
 <li class="toctree-l2"><a class="reference internal" href="chapter-1.html#id12">词法分析器</a></li>
@@ -109,11 +109,14 @@
       </div>
   </div><div class="span3"><div class="affix">
       <div class="sphinxsidebar">
-        <div class="sphinxsidebarwrapper"><ul class="nav nav-list">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="#">
+              <img class="logo" src="_static/llvm-logo.png" alt="Logo"/>
+            </a></p><ul class="nav nav-list">
     <li class="nav-header">下一个主题</li>
     <ul>
       <li>
-        <a href="chapter-1.html" title="下一章">第一章 教程介绍与词法分析器</a>
+        <a href="chapter-1.html" title="下一章">第一章 教程简介及词法分析器</a>
       </li>
     </ul>
   </ul><ul class="nav nav-list">
@@ -121,6 +124,12 @@
     <ul>
       <li><a href="_sources/index.txt" rel="nofollow">显示源代码</a></li>
     </ul>
+  </ul><ul class="nav nav-list">
+    <li class="divider"></li>
+    <form action="http://www.google.com/search" method="get" class="form-search">
+      <input type="text" name="as_q" placeholder="搜索" class="search-query span12" />
+      <input type="hidden" name="sitesearch" value="http://liancheng.github.com/llvm-tutorial-cn/" />
+    </form>
   </ul>
         </div>
       </div></div></div>

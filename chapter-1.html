@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>第一章 教程介绍与词法分析器 &mdash; LLVM教程</title>
+    <title>第一章 教程简介及词法分析器 &mdash; LLVM教程</title>
     
     <link rel="stylesheet" href="_static/rosefinch.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -29,7 +29,7 @@
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="top" title="LLVM教程" href="index.html" />
     <link rel="next" title="第二章 实现语法分析器和AST" href="chapter-2.html" />
-    <link rel="prev" title="Kaleidoscope：用LLVM开发新语言" href="index.html" /> 
+    <link rel="prev" title="用LLVM开发新语言" href="index.html" /> 
   </head>
   <body><div class="navbar navbar-fixed-top navbar-inverse">
     <div class="navbar-inner">
@@ -49,7 +49,7 @@
           <div class="body">
             
   <div class="section" id="chapter-1">
-<span id="id1"></span><h1>第一章 教程介绍与词法分析器<a class="headerlink" href="#chapter-1" title="永久链接至标题">¶</a></h1>
+<span id="id1"></span><h1>第一章 教程简介及词法分析器<a class="headerlink" href="#chapter-1" title="永久链接至标题">¶</a></h1>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -60,7 +60,7 @@
 </table>
 <div class="section" id="id3">
 <h2>教程介绍<a class="headerlink" href="#id3" title="永久链接至标题">¶</a></h2>
-<p>欢迎进入本教程——“用LLVM开发新语言”。本教程详细描述了一门简单语言的实现过程，你将会发现这个过程是多么的简单而有趣。本教程将会带您起步，同时协助您构建一个可用以扩展成其他语言框架。教程中的代码可以作为尝试LLVM中其他相关功能的试验田。</p>
+<p>欢迎来到“用LLVM开发新语言”教程。本教程详细介绍了如何实现一门简单的（编程）语言，这个过程既简单又有趣。本教程将带你一起搭建一套框架，有了它，你甚至还可以实现其他语言。教程中的代码便是供你把玩LLVM的各种功能的试验田。</p>
 <p>本教程的目的在于渐进地揭示我们的语言，详述它的构建过程。期间我们将广泛覆盖有关语言设计和LLVM用法的大量问题。我们会沿途展示和阐述相关的代码，让您不至被大量的细节弄得晕头转向。</p>
 <p>得提前说明的是，本教程讲授的是编译器技术和LLVM，而<strong>不是</strong>健全的、现代化的软件工程原则。在实际操作中，这意味着我们将走一些捷径以简化阐述。比如代码中会有内存泄漏、到处是全局变量、不会用到<a class="reference external" href="http://en.wikipedia.org/wiki/Visitor_pattern">visitor</a>等良好的模式等等……一切从简。如果您打算深究这些代码以作为未来项目的基础，填补这些缺陷也并不是什么难事。</p>
 <p>我对教程内容按章节进行了组织，如果您对某些内容很熟悉或不感兴趣便可直接跳过。教程结构如下：</p>
@@ -212,10 +212,13 @@ atan2(sin(.4), cos(42))</pre>
       </div>
   </div><div class="span3"><div class="affix">
       <div class="sphinxsidebar">
-        <div class="sphinxsidebarwrapper"><ul class="nav nav-list">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/llvm-logo.png" alt="Logo"/>
+            </a></p><ul class="nav nav-list">
     <li class="nav-header">內容目录</li>
     <ul>
-<li><a class="reference internal" href="#">第一章 教程介绍与词法分析器</a><ul>
+<li><a class="reference internal" href="#">第一章 教程简介及词法分析器</a><ul>
 <li><a class="reference internal" href="#id3">教程介绍</a></li>
 <li><a class="reference internal" href="#id7">基础语言</a></li>
 <li><a class="reference internal" href="#id12">词法分析器</a></li>
@@ -227,7 +230,7 @@ atan2(sin(.4), cos(42))</pre>
     <li class="nav-header">上一个主题</li>
     <ul>
       <li>
-        <a href="index.html" title="上一章">Kaleidoscope：用LLVM开发新语言</a>
+        <a href="index.html" title="上一章">用LLVM开发新语言</a>
       </li>
     </ul>
   </ul><ul class="nav nav-list">
@@ -242,6 +245,12 @@ atan2(sin(.4), cos(42))</pre>
     <ul>
       <li><a href="_sources/chapter-1.txt" rel="nofollow">显示源代码</a></li>
     </ul>
+  </ul><ul class="nav nav-list">
+    <li class="divider"></li>
+    <form action="http://www.google.com/search" method="get" class="form-search">
+      <input type="text" name="as_q" placeholder="搜索" class="search-query span12" />
+      <input type="hidden" name="sitesearch" value="http://liancheng.github.com/llvm-tutorial-cn/" />
+    </form>
   </ul>
         </div>
       </div></div></div>
