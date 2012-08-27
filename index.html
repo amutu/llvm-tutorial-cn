@@ -1,74 +1,137 @@
-<!DOCTYPE html>
-<html>
 
+<!DOCTYPE HTML>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta charset='utf-8' />
-    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
-    <meta name="description" content="Llvm-tutorial-cn : Simplified Chinese translation for the LLVM Tutorial" />
-
-    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
-
-    <title>Llvm-tutorial-cn</title>
-  </head>
-
-  <body>
-
-    <!-- HEADER -->
-    <div id="header_wrap" class="outer">
-        <header class="inner">
-          <a id="forkme_banner" href="https://github.com/liancheng/llvm-tutorial-cn">View on GitHub</a>
-
-          <h1 id="project_title">Llvm-tutorial-cn</h1>
-          <h2 id="project_tagline">Simplified Chinese translation for the LLVM Tutorial</h2>
-
-            <section id="downloads">
-              <a class="zip_download_link" href="https://github.com/liancheng/llvm-tutorial-cn/zipball/master">Download this project as a .zip file</a>
-              <a class="tar_download_link" href="https://github.com/liancheng/llvm-tutorial-cn/tarball/master">Download this project as a tar.gz file</a>
-            </section>
-        </header>
-    </div>
-
-    <!-- MAIN CONTENT -->
-    <div id="main_content_wrap" class="outer">
-      <section id="main_content" class="inner">
-        <h3>Welcome to GitHub Pages.</h3>
-
-<p>This automatic page generator is the easiest way to create beautiful pages for all of your projects. Author your page content here using GitHub Flavored Markdown, select a template crafted by a designer, and publish. After your page is generated, you can check out the new branch:</p>
-
-<pre><code>$ cd your_repo_root/repo_name
-$ git fetch origin
-$ git checkout gh-pages
-</code></pre>
-
-<p>If you're using the GitHub for Mac, simply sync your repository and you'll see the new branch.</p>
-
-<h3>Designer Templates</h3>
-
-<p>We've crafted some handsome templates for you to use. Go ahead and continue to layouts to browse through them. You can easily go back to edit your page before publishing. After publishing your page, you can revisit the page generator and switch to another theme. Your Page content will be preserved if it remained markdown format.</p>
-
-<h3>Rather Drive Stick?</h3>
-
-<p>If you prefer to not use the automatic generator, push a branch named <code>gh-pages</code> to your repository to create a page manually. In addition to supporting regular HTML content, GitHub Pages support Jekyll, a simple, blog aware static site generator written by our own Tom Preston-Werner. Jekyll makes it easy to create site-wide headers and footers without having to copy them across every page. It also offers intelligent blog support and other advanced templating features.</p>
-
-<h3>Authors and Contributors</h3>
-
-<p>You can <a href="https://github.com/blog/821" class="user-mention">@mention</a> a GitHub username to generate a link to their profile. The resulting <code>&lt;a&gt;</code> element will link to the contributor's GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
-
-<h3>Support or Contact</h3>
-
-<p>Having trouble with Pages? Check out the documentation at <a href="http://help.github.com/pages">http://help.github.com/pages</a> or contact <a href="mailto:support@github.com">support@github.com</a> and we’ll help you sort it out.</p>
-      </section>
-    </div>
-
-    <!-- FOOTER  -->
-    <div id="footer_wrap" class="outer">
-      <footer class="inner">
-        <p class="copyright">Llvm-tutorial-cn maintained by <a href="https://github.com/liancheng">liancheng</a></p>
-        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
-      </footer>
-    </div>
-
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
+    <title>Kaleidoscope：用LLVM开发新语言 &mdash; LLVM教程</title>
+    
+    <link rel="stylesheet" href="_static/rosefinch.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap.min.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/translations.js"></script>
+    <script type="text/javascript" src="_static/bootstrap.min.js"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="top" title="LLVM教程" href="#" />
+    <link rel="next" title="第一章 教程介绍与词法分析器" href="chapter-1.html" /> 
+  </head>
+  <body><div class="navbar navbar-fixed-top navbar-inverse">
+    <div class="navbar-inner">
+      <div class="container-fluid">
+        <a href="#" class="brand">LLVM教程</a>
+        <ul class="nav"><li><a href="chapter-1.html">下一页</a></li></ul>
+      </div>
+    </div>
+  </div><div class="content container-fluid">
+    <div class="row-fluid">
+      
 
+    <div class="document"><div class="span9">
+    
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="kaleidoscope-llvm">
+<h1>Kaleidoscope：用LLVM开发新语言<a class="headerlink" href="#kaleidoscope-llvm" title="永久链接至标题">¶</a></h1>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">作者:</th><td class="field-body"><a class="reference external" href="mailto:sabre&#37;&#52;&#48;nondot&#46;org">Chris Lattner</a></td>
+</tr>
+<tr class="field-even field"><th class="field-name">译者:</th><td class="field-body"><a class="reference external" href="mailto:rhythm&#46;mail&#37;&#52;&#48;gmail&#46;com">连城</a></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">最后更新:</th><td class="field-body">2012-08-27 19:28</td>
+</tr>
+<tr class="field-even field"><th class="field-name">许可协议:</th><td class="field-body"><a class="reference external" href="http://creativecommons.org/licenses/by-nc-nd/2.5/cn/">知识共享“署名、非商业性使用、禁止演绎”2.5中国大陆许可协议</a>（<a class="reference external" href="http://creativecommons.org/licenses/by-nc-nd/2.5/cn/legalcode">全文</a>） <img alt="cc" src="_images/cc.png" /></td>
+</tr>
+</tbody>
+</table>
+<div class="topic">
+<p class="topic-title first">目录</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="chapter-1.html">第一章 教程介绍与词法分析器</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="chapter-1.html#id3">教程介绍</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chapter-1.html#id7">基础语言</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chapter-1.html#id12">词法分析器</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="chapter-2.html">第二章 实现语法分析器和AST</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="chapter-2.html#id2">第二章介绍</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chapter-2.html#id7">抽象语法树（AST）</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chapter-2.html#id8">语法分析器基础</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chapter-2.html#id9">解析基本表达式</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chapter-2.html#id11">解析二元表达式</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chapter-2.html#id13">解析其余内容</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chapter-2.html#id14">驱动代码</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chapter-2.html#id15">结论</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chapter-2.html#chapter-2-code">完整源码</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="chapter-3.html">第三章 LLVM IR代码生成</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="chapter-3.html#id2">第三章介绍</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chapter-3.html#id3">生成表达式代码</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chapter-3.html#id4">生成函数代码</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chapter-3.html#id5">驱动代码的修改及结语</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chapter-3.html#id6">完整源码</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="chapter-4.html">第四章 添加JIT和优化支持</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chapter-5.html">第五章 对语言进行扩展：控制流程</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chapter-6.html">第六章 对语言进行扩展：用户自定义运算符</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chapter-7.html">第七章 对语言进行扩展：可变变量</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chapter-8.html">第八章 结论及LLVM相关的其他有用内容</a></li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+  </div><div class="span3"><div class="affix">
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper"><ul class="nav nav-list">
+    <li class="nav-header">下一个主题</li>
+    <ul>
+      <li>
+        <a href="chapter-1.html" title="下一章">第一章 教程介绍与词法分析器</a>
+      </li>
+    </ul>
+  </ul><ul class="nav nav-list">
+    <li class="nav-header">本页</li>
+    <ul>
+      <li><a href="_sources/index.txt" rel="nofollow">显示源代码</a></li>
+    </ul>
+  </ul>
+        </div>
+      </div></div></div>
+      <div class="clearer"></div>
+    </div>
+    </div>
+  </div><hr />
+  
+    <div class="footer">
+        &copy; 版权所有 2012, 连城.
+      使用 <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
   </body>
 </html>
