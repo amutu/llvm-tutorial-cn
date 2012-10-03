@@ -69,13 +69,13 @@
 <li><a class="reference internal" href="chapter-2.html"><em>第二章</em></a>：<strong>实现语法分析器和AST</strong>——完成了词法分析器，接下来就该讨论语法解析技术并开始构造基本的AST（Abstract Syntax Tree，抽象语法树——译者注）了。这份教程共介绍了递归下降解析和运算符优先级解析两种解析技术。<a class="reference internal" href=""><em>第一章</em></a>和<a class="reference internal" href="chapter-2.html"><em>第二章</em></a>的内容与LLVM完全无关，至此我们的代码甚至都不需要链接LLVM库。 :)</li>
 <li><a class="reference internal" href="chapter-3.html"><em>第三章</em></a>：<strong>LLVM IR代码生成</strong>——搞定AST之后，我们将炫耀一番，让你看看LLVM IR的生成过程是多么的简单。</li>
 <li><a class="reference internal" href="chapter-4.html"><em>第四章</em></a>：<strong>添加JIT和优化支持</strong>——鉴于很多人对如何把LLVM用作JIT感兴趣，我们打算在此深入一下，让你看看用于添加JIT支持的那三行代码。尽管LLVM在其他方面的用途也很广泛，但要说炫技，还是这三行代码最简单也最“惊艳”。</li>
-<li><a class="reference internal" href="chapter-5.html"><em>第五章</em></a>：<strong>语言扩展：流程控制</strong>——我们的语言已经准备就绪可以运行了，现在来看看如何给它添加流程控制能力（<tt class="docutils literal"><span class="pre">if</span></tt>/<tt class="docutils literal"><span class="pre">then</span></tt>/<tt class="docutils literal"><span class="pre">else</span></tt>和“<tt class="docutils literal"><span class="pre">for</span></tt>”循环）。在此我们还将借机介绍一下简单的<a class="reference external" href="http://en.wikipedia.org/wiki/Spaghetti_stack">SSA</a>构造和流程控制。</li>
+<li><a class="reference internal" href="chapter-5.html"><em>第五章</em></a>：<strong>语言扩展：流程控制</strong>——我们的语言已经准备就绪可以运行了，现在来看看如何给它添加流程控制能力（<tt class="docutils literal"><span class="pre">if</span></tt>/<tt class="docutils literal"><span class="pre">then</span></tt>/<tt class="docutils literal"><span class="pre">else</span></tt>和“<tt class="docutils literal"><span class="pre">for</span></tt>”循环）。在此我们还将借机介绍一下简单的<a class="reference external" href="http://en.wikipedia.org/wiki/Static_single_assignment_form">SSA</a>构造和流程控制。</li>
 <li><a class="reference internal" href="chapter-6.html"><em>第六章</em></a>：<strong>语言扩展：用户自定义运算符</strong>——这一章虽然无聊但却很有意思，它讨论了如何对语言进行扩展，从而让用户能够在程序中自行定义任意的一元和二元运算符（还可以设置优先级！）。这一机制使得我们得以将该“语言”的很大一部分都实现成库函数。</li>
 <li><a class="reference internal" href="chapter-7.html"><em>第七章</em></a>：<strong>语言扩展：可变变量</strong>——本章介绍的是如何添加用户自定义局部变量和赋值运算符。最有趣儿的地方在于，在LLVM中构造SSA form简单至极：不，实际上LLVM压根儿就<strong>不</strong>要求你在前端（指编译器/解释器前端——译者注）构造SSA form！</li>
-<li><a class="reference internal" href="chapter-8.html"><em>第八章</em></a>：<strong>结论以及其他和LLVM相关的内容</strong>——本章对整个系列教程进行了总结，不仅讨论了多种潜在的语言扩展方向，同时还给出了一系列“专题”的参考资料，例如垃圾回收支持、异常、调试、“<a class="reference external" href="http://en.wikipedia.org/wiki/Static_single_assignment_form">意面式栈</a>”支持，此外还有很多其他窍门和技巧。</li>
+<li><a class="reference internal" href="chapter-8.html"><em>第八章</em></a>：<strong>结论以及其他和LLVM相关的内容</strong>——本章对整个系列教程进行了总结，不仅讨论了多种潜在的语言扩展方向，同时还给出了一系列“专题”的参考资料，例如垃圾回收支持、异常、调试、“<a class="reference external" href="http://en.wikipedia.org/wiki/Spaghetti_stack">意面式栈</a>”支持，此外还有很多其他窍门和技巧。</li>
 </ul>
-<p>到本教程末尾为止，不算注释和空行，我们总共只需编写不到700行代码。仅需这么些代码，我们就给一门相对复杂的语言写出了一个非常靠谱的编译器，包括手工打造的词法分析器、语法分析器、AST，带JIT编译器的代码生成支持。在别的系统只提供了些有那么点意思的“hello world”教程的时候，我想这篇教程的广度足以诠释LLVM的强大，以及当您对语言和编译器设计感兴趣时为何应该考虑使用LLVM。</p>
-<p>最后说一句：我们希望您能够自己把玩这个语言并对其进行扩展。拿着代码疯狂地hack去吧，编译器并不总是令人恐怖的怪兽——把玩一门语言是非常有趣的！</p>
+<p>到本教程末尾为止，不算注释和空行，我们总共只需编写不到700行代码。面对这样一门相对复杂的语言，我们只用了这么点儿代码就实现了一个像样的编译器，包括手工打造的词法分析器、语法分析器、AST，还实现了带JIT编译器的代码生成。我想，相对于那些仅能给出“hello world”级别的教程的系统，这篇教程的广度足以诠释LLVM的强大；如果你对语言和编译器设计感兴趣，它应该能够说服你认真考虑考虑LLVM。</p>
+<p>最后说一句：我们希望你能够对这一语言进行扩展，好好玩味一番。拿着代码疯狂地hack去吧，编译器并非令人恐惧的怪兽——把玩程序语言，奇乐无穷！</p>
 </div>
 <div class="section" id="id6">
 <h2>基础语言<a class="headerlink" href="#id6" title="永久链接至标题">¶</a></h2>
