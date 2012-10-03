@@ -1,5 +1,6 @@
 
-<!DOCTYPE HTML>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -8,9 +9,8 @@
     
     <title>第七章 对语言进行扩展：可变变量 &mdash; LLVM教程</title>
     
-    <link rel="stylesheet" href="_static/rosefinch.css" type="text/css" />
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/bootstrap.min.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
@@ -24,26 +24,26 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/translations.js"></script>
-    <script type="text/javascript" src="_static/bootstrap.min.js"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="top" title="LLVM教程" href="index.html" />
     <link rel="next" title="第八章 结论及LLVM相关的其他有用内容" href="chapter-8.html" />
     <link rel="prev" title="第六章 对语言进行扩展：用户自定义运算符" href="chapter-6.html" /> 
   </head>
-  <body><div class="navbar navbar-fixed-top navbar-inverse">
-    <div class="navbar-inner">
-      <div class="container-fluid">
-        <a href="index.html" class="brand">LLVM教程</a>
-        <ul class="nav"><li><a href="chapter-8.html">下一页</a></li><li><a href="chapter-6.html">上一页</a></li></ul>
-      </div>
-    </div>
-  </div><div class="content container-fluid">
-    <div class="row-fluid">
-      
+  <body>
+    <div class="related">
+      <h3>导航</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="chapter-8.html" title="第八章 结论及LLVM相关的其他有用内容"
+             accesskey="N">下一页</a></li>
+        <li class="right" >
+          <a href="chapter-6.html" title="第六章 对语言进行扩展：用户自定义运算符"
+             accesskey="P">上一页</a> |</li>
+        <li><a href="index.html">LLVM教程</a> &raquo;</li> 
+      </ul>
+    </div>  
 
-    <div class="document"><div class="span9">
-    
+    <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
           <div class="body">
@@ -64,44 +64,51 @@
           </div>
         </div>
       </div>
-  </div><div class="span3"><div class="affix">
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="index.html">
               <img class="logo" src="_static/llvm-logo.png" alt="Logo"/>
-            </a></p><ul class="nav nav-list">
-    <li class="nav-header">上一个主题</li>
-    <ul>
-      <li>
-        <a href="chapter-6.html" title="上一章">第六章 对语言进行扩展：用户自定义运算符</a>
-      </li>
-    </ul>
-  </ul><ul class="nav nav-list">
-    <li class="nav-header">下一个主题</li>
-    <ul>
-      <li>
-        <a href="chapter-8.html" title="下一章">第八章 结论及LLVM相关的其他有用内容</a>
-      </li>
-    </ul>
-  </ul><ul class="nav nav-list">
-    <li class="nav-header">本页</li>
-    <ul>
-      <li><a href="_sources/chapter-7.txt" rel="nofollow">显示源代码</a></li>
-    </ul>
-  </ul><ul class="nav nav-list">
-    <li class="divider"></li>
-    <form action="http://www.google.com/search" method="get" class="form-search">
-      <input type="text" name="as_q" placeholder="搜索" class="search-query span12" />
-      <input type="hidden" name="sitesearch" value="http://liancheng.github.com/llvm-tutorial-cn/" />
-    </form>
+            </a></p>
+  <h4>上一个主题</h4>
+  <p class="topless"><a href="chapter-6.html"
+                        title="上一章">第六章 对语言进行扩展：用户自定义运算符</a></p>
+  <h4>下一个主题</h4>
+  <p class="topless"><a href="chapter-8.html"
+                        title="下一章">第八章 结论及LLVM相关的其他有用内容</a></p>
+  <h3>本页</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/chapter-7.txt"
+           rel="nofollow">显示源代码</a></li>
   </ul>
+<div id="searchbox" style="display: none">
+  <h3>快速搜索</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="搜索" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    输入相关的模块，术语，类或者函数名称进行搜索
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
-      </div></div></div>
+      </div>
       <div class="clearer"></div>
     </div>
+    <div class="related">
+      <h3>导航</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="chapter-8.html" title="第八章 结论及LLVM相关的其他有用内容"
+             >下一页</a></li>
+        <li class="right" >
+          <a href="chapter-6.html" title="第六章 对语言进行扩展：用户自定义运算符"
+             >上一页</a> |</li>
+        <li><a href="index.html">LLVM教程</a> &raquo;</li> 
+      </ul>
     </div>
-  </div><hr />
-  
     <div class="footer">
         &copy; 版权所有 2012, 连城.
       使用 <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
