@@ -66,7 +66,13 @@
 <div class="section" id="id7">
 <h2>抽象语法树（AST）<a class="headerlink" href="#id7" title="永久链接至标题">¶</a></h2>
 <p>程序的抽象语法树的作用在于抓住程序行为的要义，以便编译器后续环节（如代码生成）对其进行解析。基本上，我们希望语言中的每个结构都有一个对象与之对应，AST也应该对语言进行紧密的建模。在Kaleidoscope中，我们有表达式、函数原型和函数对象。我们首先从表达式入手：</p>
-<div class="highlight-cpp"><div class="highlight"><pre><span class="c1">/// ExprAST - Base class for all expression nodes.</span>
+<div class="highlight-cpp"><div class="highlight"><pre><span class="p">}</span>
+
+<span class="c1">//===----------------------------------------------------------------------===//</span>
+<span class="c1">// Abstract Syntax Tree (aka Parse Tree)</span>
+<span class="c1">//===----------------------------------------------------------------------===//</span>
+
+<span class="c1">/// ExprAST - Base class for all expression nodes.</span>
 <span class="k">class</span> <span class="nc">ExprAST</span> <span class="p">{</span>
 <span class="k">public</span><span class="o">:</span>
   <span class="k">virtual</span> <span class="o">~</span><span class="n">ExprAST</span><span class="p">()</span> <span class="p">{}</span>
@@ -119,6 +125,7 @@
 <span class="k">public</span><span class="o">:</span>
   <span class="n">PrototypeAST</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="o">&amp;</span><span class="n">name</span><span class="p">,</span> <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">args</span><span class="p">)</span>
     <span class="o">:</span> <span class="n">Name</span><span class="p">(</span><span class="n">name</span><span class="p">),</span> <span class="n">Args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="p">{}</span>
+
 <span class="p">};</span>
 
 <span class="c1">/// FunctionAST - This class represents a function definition itself.</span>
@@ -128,6 +135,7 @@
 <span class="k">public</span><span class="o">:</span>
   <span class="n">FunctionAST</span><span class="p">(</span><span class="n">PrototypeAST</span> <span class="o">*</span><span class="n">proto</span><span class="p">,</span> <span class="n">ExprAST</span> <span class="o">*</span><span class="n">body</span><span class="p">)</span>
     <span class="o">:</span> <span class="n">Proto</span><span class="p">(</span><span class="n">proto</span><span class="p">),</span> <span class="n">Body</span><span class="p">(</span><span class="n">body</span><span class="p">)</span> <span class="p">{}</span>
+
 <span class="p">};</span>
 </pre></div>
 </div>
@@ -175,38 +183,16 @@
 </div>
 <p>这段代码很简单：它在当前标记为<tt class="docutils literal"><span class="pre">tok_number</span></tt>时被调用。它用当前解析出的数值构造一个<tt class="docutils literal"><span class="pre">NumberExprAST</span></tt>节点，将词法分析器步进到下一个标记，最后返回。</p>
 <p>这儿有几点很有趣。其中最重要的一点就是该函数会取走与该规则相关的所有标记并在返回前将下一个标记（该标记不属于当前的语法规则）放入标记缓冲。这是非常标准的递归下降解析器的行为。作为一个更合适的例子，括号运算符的定义如下：</p>
-<div class="highlight-cpp"><div class="highlight"><pre><span class="c1">/// identifierexpr</span>
-<span class="c1">///   ::= identifier</span>
-<span class="c1">///   ::= identifier &#39;(&#39; expression* &#39;)&#39;</span>
-<span class="k">static</span> <span class="n">ExprAST</span> <span class="o">*</span><span class="n">ParseIdentifierExpr</span><span class="p">()</span> <span class="p">{</span>
-  <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">IdName</span> <span class="o">=</span> <span class="n">IdentifierStr</span><span class="p">;</span>
+<div class="highlight-cpp"><div class="highlight"><pre><span class="c1">/// parenexpr ::= &#39;(&#39; expression &#39;)&#39;</span>
+<span class="k">static</span> <span class="n">ExprAST</span> <span class="o">*</span><span class="n">ParseParenExpr</span><span class="p">()</span> <span class="p">{</span>
+  <span class="n">getNextToken</span><span class="p">();</span>  <span class="c1">// eat (.</span>
+  <span class="n">ExprAST</span> <span class="o">*</span><span class="n">V</span> <span class="o">=</span> <span class="n">ParseExpression</span><span class="p">();</span>
+  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">V</span><span class="p">)</span> <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
 
-  <span class="n">getNextToken</span><span class="p">();</span>  <span class="c1">// eat identifier.</span>
-
-  <span class="k">if</span> <span class="p">(</span><span class="n">CurTok</span> <span class="o">!=</span> <span class="sc">&#39;(&#39;</span><span class="p">)</span> <span class="c1">// Simple variable ref.</span>
-    <span class="k">return</span> <span class="k">new</span> <span class="n">VariableExprAST</span><span class="p">(</span><span class="n">IdName</span><span class="p">);</span>
-
-  <span class="c1">// Call.</span>
-  <span class="n">getNextToken</span><span class="p">();</span>  <span class="c1">// eat (</span>
-  <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">ExprAST</span><span class="o">*&gt;</span> <span class="n">Args</span><span class="p">;</span>
-  <span class="k">if</span> <span class="p">(</span><span class="n">CurTok</span> <span class="o">!=</span> <span class="sc">&#39;)&#39;</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">while</span> <span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
-      <span class="n">ExprAST</span> <span class="o">*</span><span class="n">Arg</span> <span class="o">=</span> <span class="n">ParseExpression</span><span class="p">();</span>
-      <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">Arg</span><span class="p">)</span> <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
-      <span class="n">Args</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">Arg</span><span class="p">);</span>
-
-      <span class="k">if</span> <span class="p">(</span><span class="n">CurTok</span> <span class="o">==</span> <span class="sc">&#39;)&#39;</span><span class="p">)</span> <span class="k">break</span><span class="p">;</span>
-
-      <span class="k">if</span> <span class="p">(</span><span class="n">CurTok</span> <span class="o">!=</span> <span class="sc">&#39;,&#39;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">Error</span><span class="p">(</span><span class="s">&quot;Expected &#39;)&#39; or &#39;,&#39; in argument list&quot;</span><span class="p">);</span>
-      <span class="n">getNextToken</span><span class="p">();</span>
-    <span class="p">}</span>
-  <span class="p">}</span>
-
-  <span class="c1">// Eat the &#39;)&#39;.</span>
-  <span class="n">getNextToken</span><span class="p">();</span>
-
-  <span class="k">return</span> <span class="k">new</span> <span class="n">CallExprAST</span><span class="p">(</span><span class="n">IdName</span><span class="p">,</span> <span class="n">Args</span><span class="p">);</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">CurTok</span> <span class="o">!=</span> <span class="sc">&#39;)&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Error</span><span class="p">(</span><span class="s">&quot;expected &#39;)&#39;&quot;</span><span class="p">);</span>
+  <span class="n">getNextToken</span><span class="p">();</span>  <span class="c1">// eat ).</span>
+  <span class="k">return</span> <span class="n">V</span><span class="p">;</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -243,12 +229,6 @@
       <span class="n">getNextToken</span><span class="p">();</span>
     <span class="p">}</span>
   <span class="p">}</span>
-
-  <span class="c1">// Eat the &#39;)&#39;.</span>
-  <span class="n">getNextToken</span><span class="p">();</span>
-
-  <span class="k">return</span> <span class="k">new</span> <span class="n">CallExprAST</span><span class="p">(</span><span class="n">IdName</span><span class="p">,</span> <span class="n">Args</span><span class="p">);</span>
-<span class="p">}</span>
 </pre></div>
 </div>
 <p>这段代码和其它函数的风格一致。（它应该在当前标记为<tt class="docutils literal"><span class="pre">tok_identifier</span></tt>时被调用）。它也具备递归和错误处理。比较有意思的时它采用了<strong>预取</strong>的方式来确定当前的标识符到底是一个独立的变量引用还是一个函数调用表达式。它通过检查紧跟标识符之后的标记是否是“<tt class="docutils literal"><span class="pre">(</span></tt>”来决定应该构造一个<tt class="docutils literal"><span class="pre">VariableExprAST</span></tt>还是一个<tt class="docutils literal"><span class="pre">CallExprAST</span></tt>节点。</p>
@@ -296,8 +276,6 @@
   <span class="n">BinopPrecedence</span><span class="p">[</span><span class="sc">&#39;+&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">20</span><span class="p">;</span>
   <span class="n">BinopPrecedence</span><span class="p">[</span><span class="sc">&#39;-&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">20</span><span class="p">;</span>
   <span class="n">BinopPrecedence</span><span class="p">[</span><span class="sc">&#39;*&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">40</span><span class="p">;</span>  <span class="c1">// highest.</span>
-  <span class="p">...</span>
-<span class="p">}</span>
 </pre></div>
 </div>
 <p>就Kaleidoscope的基本形式而言，我们仅需支持4种二元运算符（作为我们英勇无畏的读者，您一定可以轻易对其进行扩展）。函数<tt class="docutils literal"><span class="pre">GetTokPrecedence</span></tt>返回当前标记的优先级，若该标记不是二元运算符则返回<tt class="docutils literal"><span class="pre">-1</span></tt>。借助<tt class="docutils literal"><span class="pre">map</span></tt>可以简化新运算符的添加，同时这种算法也不依赖于任何特定的运算符。不过要想省掉<tt class="docutils literal"><span class="pre">map</span></tt>并直接在<tt class="docutils literal"><span class="pre">GetTokPrecedence</span></tt>中进行优先级比较也很简单。（直接使用定长数组也行）。</p>
@@ -330,13 +308,13 @@
 </pre></div>
 </div>
 <p>这段代码查询当前标记的优先级并检查优先级是否过低。由于我们将非二元运算符标记的优先级定义为<tt class="docutils literal"><span class="pre">-1</span></tt>，因此该检查在序对流中不再有二元运算符时便会自行结束。如果检查通过，则该标记是一个二元运算符且会被囊括到当前的表达式中：</p>
-<div class="highlight-cpp"><div class="highlight"><pre><span class="c1">// Okay, we know this is a binop.</span>
-<span class="kt">int</span> <span class="n">BinOp</span> <span class="o">=</span> <span class="n">CurTok</span><span class="p">;</span>
-<span class="n">getNextToken</span><span class="p">();</span>  <span class="c1">// eat binop</span>
+<div class="highlight-cpp"><div class="highlight"><pre>    <span class="c1">// Okay, we know this is a binop.</span>
+    <span class="kt">int</span> <span class="n">BinOp</span> <span class="o">=</span> <span class="n">CurTok</span><span class="p">;</span>
+    <span class="n">getNextToken</span><span class="p">();</span>  <span class="c1">// eat binop</span>
 
-<span class="c1">// Parse the primary expression after the binary operator.</span>
-<span class="n">ExprAST</span> <span class="o">*</span><span class="n">RHS</span> <span class="o">=</span> <span class="n">ParsePrimary</span><span class="p">();</span>
-<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">RHS</span><span class="p">)</span> <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="c1">// Parse the primary expression after the binary operator.</span>
+    <span class="n">ExprAST</span> <span class="o">*</span><span class="n">RHS</span> <span class="o">=</span> <span class="n">ParsePrimary</span><span class="p">();</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">RHS</span><span class="p">)</span> <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
 </pre></div>
 </div>
 </div>
@@ -349,8 +327,8 @@
 <div class="section" id="id15">
 <h2>结论<a class="headerlink" href="#id15" title="永久链接至标题">¶</a></h2>
 </div>
-<div class="section" id="chapter-2-code">
-<span id="id16"></span><h2>完整源码<a class="headerlink" href="#chapter-2-code" title="永久链接至标题">¶</a></h2>
+<div class="section" id="chapter-2-full-code">
+<span id="id16"></span><h2>完整源码<a class="headerlink" href="#chapter-2-full-code" title="永久链接至标题">¶</a></h2>
 <div class="highlight-cpp"><div class="highlight"><pre><span class="cp">#include &lt;cstdio&gt;</span>
 <span class="cp">#include &lt;cstdlib&gt;</span>
 <span class="cp">#include &lt;string&gt;</span>
@@ -774,7 +752,7 @@
 <li><a class="reference internal" href="#id13">解析其余内容</a></li>
 <li><a class="reference internal" href="#id14">驱动代码</a></li>
 <li><a class="reference internal" href="#id15">结论</a></li>
-<li><a class="reference internal" href="#chapter-2-code">完整源码</a></li>
+<li><a class="reference internal" href="#chapter-2-full-code">完整源码</a></li>
 </ul>
 </li>
 </ul>
