@@ -1,52 +1,38 @@
+<!DOCTYPE HTML>
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+  <html xmlns="http://www.w3.org/1999/xhtml" lang="zh">
 
-
-<html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
     <title>用LLVM开发新语言 &mdash; LLVM教程</title>
     
-    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/style.css" type="text/css" />
-    
+    <link rel="stylesheet" href="_static/han.min.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap.min.css" type="text/css" />
+  <link rel="stylesheet" href="_static/rosefinch.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '',
-        VERSION:     '1.0.0',
+        URL_ROOT:       '',
+        VERSION:        '1.0.0',
         COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        FILE_SUFFIX:    '.html',
+        HAS_SOURCE:     true
       };
     </script>
+    <script type="text/javascript" src="_static/han.min.js"></script>
+    <script type="text/javascript" src="_static/bootstrap.min.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
-    <link rel="top" title="LLVM教程" href="#" />
-    <link rel="next" title="第一章 教程简介与词法分析器" href="chapter-1.html" /> 
-  </head>
-  <body>
-    <div class="related">
-      <h3>导航</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="chapter-1.html" title="第一章 教程简介与词法分析器"
-             accesskey="N">下一页</a></li>
-        <li><a href="#">LLVM教程</a> &raquo;</li> 
-      </ul>
-    </div>  
+    <script type="text/javascript" src="_static/doctools.js"></script><link rel="shortcut icon" href="_static/favicon.ico"/><link rel="top" title="LLVM教程" href="#" /><link rel="next" title="第一章 教程简介与词法分析器" href="chapter-1.html" /></head>
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body">
-            
-  <div class="section" id="llvm">
-<h1>用LLVM开发新语言<a class="headerlink" href="#llvm" title="永久链接至标题">¶</a></h1>
+  <body><div class="navbar navbar-static-top navbar-inverse">
+        <div class="navbar-inner">
+          <a href="#" class="brand">LLVM教程</a>
+          <ul class="nav"><li><a href="chapter-1.html">下一页</a></li></ul></div>
+      </div><div class="content container-fluid">
+        <div class="row-fluid"><div class="document span9"><article >
+                <div class="documentwrapper"><div class="body"><div class="section" id="llvm">
+<span id="index"></span><h1>用LLVM开发新语言<a class="headerlink" href="#llvm" title="永久链接至标题">¶</a></h1>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -84,11 +70,10 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="chapter-3.html">第三章 LLVM IR代码生成</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="chapter-3.html#id2">第三章介绍</a></li>
-<li class="toctree-l2"><a class="reference internal" href="chapter-3.html#id3">生成表达式代码</a></li>
-<li class="toctree-l2"><a class="reference internal" href="chapter-3.html#id4">生成函数代码</a></li>
-<li class="toctree-l2"><a class="reference internal" href="chapter-3.html#id5">驱动代码的修改及结语</a></li>
-<li class="toctree-l2"><a class="reference internal" href="chapter-3.html#id6">完整源码</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chapter-3.html#id1">本章简介</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chapter-3.html#id3">代码生成的准备工作</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chapter-3.html#id7">表达式代码生成</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chapter-3.html#chapter-3-full-code">完整代码</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="chapter-4.html">第四章 添加JIT和优化支持</a></li>
@@ -104,53 +89,27 @@
 </div>
 </div>
 </div>
-
-
-          </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar">
-        <div class="sphinxsidebarwrapper">
-            <p class="logo"><a href="#">
-              <img class="logo" src="_static/llvm-logo.png" alt="Logo"/>
-            </a></p>
-  <h4>下一个主题</h4>
-  <p class="topless"><a href="chapter-1.html"
-                        title="下一章">第一章 教程简介与词法分析器</a></p>
-  <h3>本页</h3>
-  <ul class="this-page-menu">
-    <li><a href="_sources/index.txt"
-           rel="nofollow">显示源代码</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
-  <h3>快速搜索</h3>
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="搜索" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    <p class="searchtip" style="font-size: 90%">
-    输入相关的模块，术语，类或者函数名称进行搜索
-    </p>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
-      </div>
-      <div class="clearer"></div>
+</div></div>
+              </article><div class="clearer"></div>
+          </div><div class="span3">
+                <div class="sphinxsidebar">
+      <div class="sphinxsidebarwrapper"><p class="logo">
+              <a href="#">
+                <img class="logo" src="_static/llvm-logo.png" alt="Logo"/>
+              </a>
+            </p><h4>下一个主题</h4>
+  <ul>
+    <li>
+      <a href="chapter-1.html" title="下一章">第一章 教程简介与词法分析器</a>
+    </li>
+  </ul><h4>本页</h4>
+  <ul>
+    <li>
+      <a href="_sources/index.txt" rel="nofollow">显示源代码</a>
+    </li>
+  </ul></div>
     </div>
-    <div class="related">
-      <h3>导航</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="chapter-1.html" title="第一章 教程简介与词法分析器"
-             >下一页</a></li>
-        <li><a href="#">LLVM教程</a> &raquo;</li> 
-      </ul>
-    </div>
-    <div class="footer">
-        &copy; 版权所有 2012, 连城.
-      使用 <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
-    </div>
-  </body>
+              </div></div>
+      </div><div class="footer container-fluid">
+        <hr />&copy; 版权所有 2012, 连城.使用 <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.</div></body>
 </html>
