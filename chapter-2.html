@@ -132,7 +132,7 @@
 <div class="section" id="id7">
 <h2>语法解析器基础<a class="headerlink" href="#id7" title="永久链接至标题">¶</a></h2>
 <div class="compound">
-<p class="compound-first">开始构造AST之前，先要准备好用于构造AST的语法解析器。说白了，就是要利用语法解析器把“<tt class="docutils literal"><span class="pre">x+y</span></tt>“这样的输入（由词法分析器返回的三个语元）分解成由下列代码生成的AST：</p>
+<p class="compound-first">开始构造AST之前，先要准备好用于构造AST的语法解析器。说白了，就是要利用语法解析器把“<tt class="docutils literal"><span class="pre">x+y</span></tt>”这样的输入（由词法分析器返回的三个语元）分解成由下列代码生成的AST：</p>
 <div class="compound-middle highlight-cpp"><div class="highlight"><pre><span class="n">ExprAST</span> <span class="o">*</span><span class="n">X</span> <span class="o">=</span> <span class="k">new</span> <span class="n">VariableExprAST</span><span class="p">(</span><span class="s">&quot;x&quot;</span><span class="p">);</span>
 <span class="n">ExprAST</span> <span class="o">*</span><span class="n">Y</span> <span class="o">=</span> <span class="k">new</span> <span class="n">VariableExprAST</span><span class="p">(</span><span class="s">&quot;y&quot;</span><span class="p">);</span>
 <span class="n">ExprAST</span> <span class="o">*</span><span class="n">Result</span> <span class="o">=</span> <span class="k">new</span> <span class="n">BinaryExprAST</span><span class="p">(</span><span class="sc">&#39;+&#39;</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">);</span>

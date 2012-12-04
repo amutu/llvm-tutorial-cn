@@ -43,13 +43,13 @@
 </table>
 <div class="section" id="id1">
 <h2>本章简介<a class="headerlink" href="#id1" title="永久链接至标题">¶</a></h2>
-<p>欢迎进入“<a class="reference internal" href="index.html"><em>用LLVM开发新语言</em></a>”教程的第三章。本章将要介绍的是如何将第二章中构造的<a class="reference internal" href="chapter-2.html"><em>抽象语法树</em></a>转换成LLVM IR。从这一章起，我们就要正式开始接触LLVM了，你将亲眼目睹LLVM的简单便捷。LLVM IR代码生成的开发工作量跟词法分析器和语法解析器比起来简直就是小巫见大巫。 :-)</p>
-<p><strong>请注意</strong>：本章及后续章节的代码必须用2.2以上版本的LLVM才能编译。LLVM 2.1及更早的版本都不行。另外也请注意选用与你的LLVM版本相配套的教程：如果你用的是LLVM官方发行的版本，请参考对应版本自带的文档，在<a class="reference external" href="http://llvm.org/docs/tutorial/LangImpl3.html">llvm.org的历史版本汇总页</a>上也能找到各个版本的文档。</p>
+<p>欢迎进入“<a class="reference internal" href="index.html"><em>用LLVM开发新语言</em></a>”教程的第三章。本章将介绍如何把第二章中构造的<a class="reference internal" href="chapter-2.html"><em>抽象语法树</em></a>转换成LLVM IR。从这一章起，我们就要正式接触LLVM了，你将亲眼见证LLVM的简单便捷：跟词法分析器和语法解析器比起来，LLVM IR代码生成部分的开发工作量根本就不值一提。 :-)</p>
+<p><strong>请注意</strong>：本章及后续章节的代码必须用2.2以上版本的LLVM才能编译。LLVM 2.1及更早的版本都不行。另外也请注意选用与你所用的LLVM版本相配套的教程：如果你采用的是LLVM官方发行的版本，请参考版本自带的文档，在<a class="reference external" href="http://llvm.org/docs/tutorial/LangImpl3.html">llvm.org的历史版本汇总页</a>上可以找到各个版本的文档。</p>
 </div>
 <div class="section" id="id3">
 <h2>代码生成的准备工作<a class="headerlink" href="#id3" title="永久链接至标题">¶</a></h2>
 <div class="compound">
-<p class="compound-first">在生成LLVM IR之前，还有一些准备工作要做。首先，需要给每个AST类添加一个负责代码生成的虚函数<tt class="docutils literal"><span class="pre">Codegen</span></tt>（code generation）：</p>
+<p class="compound-first">在开始生成LLVM IR之前，还有一些准备工作要做。首先，给每个AST类添加一个虚函数<tt class="docutils literal"><span class="pre">Codegen</span></tt>（code generation），用于实现代码生成：</p>
 <div class="compound-middle highlight-cpp"><div class="highlight"><pre><span class="c1">/// ExprAST - Base class for all expression nodes.</span>
 <span class="k">class</span> <span class="nc">ExprAST</span> <span class="p">{</span>
 <span class="k">public</span><span class="o">:</span>
@@ -67,11 +67,11 @@
 <span class="p">...</span>
 </pre></div>
 </div>
-<p class="compound-last"><tt class="docutils literal"><span class="pre">Codegen()</span></tt>方法的职能就是为对应的AST节点生成IR以及和IR相关的各种必要内容，该函数返回的是一个LLVM <tt class="docutils literal"><span class="pre">Value</span></tt>对象。“<tt class="docutils literal"><span class="pre">Value</span></tt>”是LLVM用来表示“<a class="reference external" href="http://en.wikipedia.org/wiki/Static_single_assignment_form">静态单次赋值（SSA，Static Single Assignment）</a>寄存器”或“SSA值”的类。SSA值最突出的特点在于，它们的值一旦被相关指令计算出来，就一直保持不变，直至指令再次执行（如果有机会的话）。换句话说，SSA值是“恒定不变”的。详情请参考<a class="reference external" href="http://en.wikipedia.org/wiki/Static_single_assignment_form">Static Single Assignment</a>——理解之后就会发现，这个概念还是挺自然的。</p>
+<p class="compound-last">每种AST节点的<tt class="docutils literal"><span class="pre">Codegen()</span></tt>方法负责生成该类型AST节点的IR代码及其他必要信息，生成的内容以LLVM <tt class="docutils literal"><span class="pre">Value</span></tt>对象的形式返回。LLVM用“<tt class="docutils literal"><span class="pre">Value</span></tt>”类表示“<a class="reference external" href="http://en.wikipedia.org/wiki/Static_single_assignment_form">静态一次性赋值（SSA，Static Single Assignment）</a>寄存器”或“SSA值”。SSA值最为突出的特点就在于“固定不变”：SSA值经由对应指令运算得出后便固定下来，直到该指令再次执行之前都不可修改。详情请参考<a class="reference external" href="http://en.wikipedia.org/wiki/Static_single_assignment_form">Static Single Assignment</a>——这个概念并不难，习惯了就好。</p>
 </div>
-<p>除了在<tt class="docutils literal"><span class="pre">ExprAST</span></tt>类体系中添加虚方法以外，还可以利用<a class="reference external" href="http://en.wikipedia.org/wiki/Visitor_pattern">visitor模式</a>等其他方法来实现代码生成。再次强调，本教程不拘泥于软件工程实践层面的优劣：就我们当前的需求而言，添加虚函数是最简单的方案。</p>
+<p>除了在<tt class="docutils literal"><span class="pre">ExprAST</span></tt>类体系中添加虚方法以外，还可以利用<a class="reference external" href="http://en.wikipedia.org/wiki/Visitor_pattern">visitor模式</a>等其他方法来实现代码生成。再次强调，本教程不拘泥于软件工程实践层面的优劣：就当前需求而言，添加虚函数是最简单的方案。</p>
 <div class="compound">
-<p class="compound-first">其次，我们还需要一个“<tt class="docutils literal"><span class="pre">Error</span></tt>”方法，该函数与语法解析器里用到的报错函数类似，用于报告在代码生成过程中发现的错误（例如引用了未经声明的参数）：</p>
+<p class="compound-first">其次，我们还需要一个“<tt class="docutils literal"><span class="pre">Error</span></tt>”方法，该方法与语法解析器里用到的报错函数类似，用于报告代码生成过程中发生的错误（例如引用了未经声明的参数）：</p>
 <div class="compound-middle highlight-cpp"><div class="highlight"><pre><span class="n">Value</span> <span class="o">*</span><span class="n">ErrorV</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">Str</span><span class="p">)</span> <span class="p">{</span> <span class="n">Error</span><span class="p">(</span><span class="n">Str</span><span class="p">);</span> <span class="k">return</span> <span class="mi">0</span><span class="p">;</span> <span class="p">}</span>
 
 <span class="k">static</span> <span class="n">Module</span> <span class="o">*</span><span class="n">TheModule</span><span class="p">;</span>
@@ -79,22 +79,22 @@
 <span class="k">static</span> <span class="n">std</span><span class="o">::</span><span class="n">map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="n">Value</span><span class="o">*&gt;</span> <span class="n">NamedValues</span><span class="p">;</span>
 </pre></div>
 </div>
-<p class="compound-last">几个静态变量都是用于代码生成过程的。其中的<tt class="docutils literal"><span class="pre">TheModule</span></tt>是LLVM中用于存放某段代码中的所有函数和全局变量的结构。从某种程度上讲，它是LLVM IR最顶层的代码容器。</p>
+<p class="compound-last">上述几个静态变量都是用于完成代码生成的。其中<tt class="docutils literal"><span class="pre">TheModule</span></tt>是LLVM中用于存放代码段中所有函数和全局变量的结构。从某种意义上讲，可以把它当作LLVM IR代码的顶层容器。</p>
 </div>
-<p><tt class="docutils literal"><span class="pre">Builder</span></tt>对象是一个用于简化LLVM指令生成过程的辅助对象。<a class="reference external" href="http://llvm.org/doxygen/IRBuilder_8h-source.html"><tt class="docutils literal"><span class="pre">IRBuilder</span></tt></a>类模板的实例可用于跟踪当前的指令插入位置，同时还提供了用于创建新指令的方法。</p>
-<p><tt class="docutils literal"><span class="pre">NamedValues</span></tt>映射表则用于跟踪在当前作用域内定义的变量及与其相对应的LLVM表示（也就是代码的符号表）。在这一版的Kaleidoscope中，唯一可引用的变量就是函数的参数。因此，在生成函数体的代码的同时，函数的参数就存放在这张表中。</p>
-<p>有了这些作为基础，我们就可以开始讨论表达式的代码生成了。注意，在生成代码之前必须先设置好<tt class="docutils literal"><span class="pre">Builder</span></tt>对象，指明代码的写入位置。现在，我们姑且假设一切准备就绪，只需生成代码即可。</p>
+<p><tt class="docutils literal"><span class="pre">Builder</span></tt>是用于简化LLVM指令生成的辅助对象。<a class="reference external" href="http://llvm.org/doxygen/IRBuilder_8h-source.html"><tt class="docutils literal"><span class="pre">IRBuilder</span></tt></a>类模板的实例可用于跟踪当前插入指令的位置，同时还带有用于生成新指令的方法。</p>
+<p><tt class="docutils literal"><span class="pre">NamedValues</span></tt>映射表用于记录定义于当前作用域内的变量及与之相对应的LLVM表示（换言之，也就是代码的符号表）。在这一版的Kaleidoscope中，可引用的变量只有函数的参数。因此，在生成函数体的代码时，函数的参数就存放在这张表中。</p>
+<p>有了这些，就可以开始进行表达式的代码生成工作了。注意，在生成代码之前必须先设置好<tt class="docutils literal"><span class="pre">Builder</span></tt>对象，指明写入代码的位置。现在，我们姑且假设已经万事俱备，专心生成代码即可。</p>
 </div>
 <div class="section" id="id7">
 <h2>表达式代码生成<a class="headerlink" href="#id7" title="永久链接至标题">¶</a></h2>
 <div class="compound">
-<p class="compound-first">为表达式节点生成LLVM代码的过程非常简单明了：连带注释只需区区45行代码便足以处理全部四种表达式节点。首先是数值常量：</p>
+<p class="compound-first">为表达式节点生成LLVM代码的过程十分简单明了：连带注释只需区区45行代码便足以搞定全部四种表达式节点。首先是数值常量：</p>
 <div class="compound-middle highlight-cpp"><div class="highlight"><pre><span class="n">Value</span> <span class="o">*</span><span class="n">NumberExprAST</span><span class="o">::</span><span class="n">Codegen</span><span class="p">()</span> <span class="p">{</span>
   <span class="k">return</span> <span class="n">ConstantFP</span><span class="o">::</span><span class="n">get</span><span class="p">(</span><span class="n">getGlobalContext</span><span class="p">(),</span> <span class="n">APFloat</span><span class="p">(</span><span class="n">Val</span><span class="p">));</span>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p class="compound-middle">LLVM IR中的数值常量是由<tt class="docutils literal"><span class="pre">ConstantFP</span></tt>类来表示的。在其内部，具体数值由<tt class="docutils literal"><span class="pre">APFloat</span></tt>（Arbitrary Precision Float，可用于存储任意精度的浮点数常量）表示。这段代码基本上就是新建了一个<tt class="docutils literal"><span class="pre">ConstantFP</span></tt>并将之返回。值得注意的是，在LLVM IR内部，常量都只有一份，并且是共享的。因此，API中采用的往往是“<tt class="docutils literal"><span class="pre">foo:get(...)</span></tt>”，而不是“<tt class="docutils literal"><span class="pre">new</span> <span class="pre">foo(...)</span></tt>“或“<tt class="docutils literal"><span class="pre">foo::Create(...)</span></tt>”。</p>
+<p class="compound-middle">LLVM IR中的数值常量是由<tt class="docutils literal"><span class="pre">ConstantFP</span></tt>类表示的。在其内部，具体数值由<tt class="docutils literal"><span class="pre">APFloat</span></tt>（Arbitrary Precision Float，可用于存储任意精度的浮点数常量）表示。这段代码说白了就是新建并返回了一个<tt class="docutils literal"><span class="pre">ConstantFP</span></tt>对象。值得注意的是，在LLVM IR内部，常量都只有一份，并且是共享的。因此，API往往会采用”<tt class="docutils literal"><span class="pre">foo:get(...)</span></tt>“的形式而不是“<tt class="docutils literal"><span class="pre">new</span> <span class="pre">foo(...)</span></tt>”或“<tt class="docutils literal"><span class="pre">foo::Create(...)</span></tt>”。</p>
 <div class="compound-last highlight-cpp"><div class="highlight"><pre><span class="n">Value</span> <span class="o">*</span><span class="n">VariableExprAST</span><span class="o">::</span><span class="n">Codegen</span><span class="p">()</span> <span class="p">{</span>
   <span class="c1">// Look this variable up in the function.</span>
   <span class="n">Value</span> <span class="o">*</span><span class="n">V</span> <span class="o">=</span> <span class="n">NamedValues</span><span class="p">[</span><span class="n">Name</span><span class="p">];</span>
@@ -104,7 +104,7 @@
 </div>
 </div>
 <div class="compound">
-<p class="compound-first">用LLVM引用变量也十分简单。在简化版的Kaleidoscope中，我们只管假设被引用的变量已经在某处定义并赋值。实际上，位于<tt class="docutils literal"><span class="pre">NamedValues</span></tt>映射表中的变量只可能是函数的调用参数。这段代码会确认映射表中的确包含给定的变量名（如果不存在，就说明引用了未定义的变量）并返回该变量的值。在后续章节中，我们还会对语言做进一步的扩展，让符号表能够支持“<a class="reference external" href="http://llvm.org/docs/tutorial/LangImpl5.html#for">循环归纳变量</a>”和<a class="reference external" href="http://llvm.org/docs/tutorial/LangImpl7.html#localvars">局部变量</a>。</p>
+<p class="compound-first">在LLVM中引用变量也很简单。在简化版的Kaleidoscope中，我们大可假设被引用的变量已经在某处被定义并赋值。实际上，位于<tt class="docutils literal"><span class="pre">NamedValues</span></tt>映射表中的变量只可能是函数的调用参数。这段代码首先确认给定的变量名是否存在于映射表中（如果不存在，就说明引用了未定义的变量）然后返回该变量的值。在后续章节中，我们还会对语言做进一步的扩展，让符号表支持“<a class="reference external" href="http://llvm.org/docs/tutorial/LangImpl5.html#for">循环归纳变量</a>”和<a class="reference external" href="http://llvm.org/docs/tutorial/LangImpl7.html#localvars">局部变量</a>。</p>
 <div class="compound-middle highlight-cpp"><div class="highlight"><pre><span class="n">Value</span> <span class="o">*</span><span class="n">BinaryExprAST</span><span class="o">::</span><span class="n">Codegen</span><span class="p">()</span> <span class="p">{</span>
   <span class="n">Value</span> <span class="o">*</span><span class="n">L</span> <span class="o">=</span> <span class="n">LHS</span><span class="o">-&gt;</span><span class="n">Codegen</span><span class="p">();</span>
   <span class="n">Value</span> <span class="o">*</span><span class="n">R</span> <span class="o">=</span> <span class="n">RHS</span><span class="o">-&gt;</span><span class="n">Codegen</span><span class="p">();</span>
@@ -124,14 +124,13 @@
 <span class="p">}</span>
 </pre></div>
 </div>
-<p class="compound-last">二元运算符的处理就比较有意思了。基本的思想是递归地生成代码，先处理表达式的左侧，再处理表达式的右侧，最后再计算整个二元表达式的值。这段代码简单地通过<tt class="docutils literal"><span class="pre">switch</span></tt>为不同的二元运算符创建不同的LLVM指令。</p>
+<p class="compound-last">二元运算符的处理就比较有意思了。其基本思想是递归地生成代码，先处理表达式的左侧，再处理表达式的右侧，最后计算整个二元表达式的值。上述代码就<tt class="docutils literal"><span class="pre">opcode</span></tt>的取值用了一个简单的<tt class="docutils literal"><span class="pre">switch</span></tt>语句，从而为各种二元运算符创建出相应的LLVM指令。</p>
 </div>
-<p>在上面的例子中，LLVM <tt class="docutils literal"><span class="pre">Builder</span></tt>类的价值开始体现出来了。<tt class="docutils literal"><span class="pre">IRBuilder</span></tt>知道应该将新创建的指令插到何处，你只需（调用<tt class="docutils literal"><span class="pre">CreateFAdd</span></tt>等方法）指定用什么操作数（即这里的<tt class="docutils literal"><span class="pre">L</span></tt>和<tt class="docutils literal"><span class="pre">R</span></tt>）创建什么指令就可以了。此外，根据需要，你还可以为生成指令指定一个名字。</p>
-<p>One nice thing about LLVM is that the name is just a hint. For instance, if the code above emits multiple &#8220;<tt class="docutils literal"><span class="pre">addtmp</span></tt>&#8221; variables, LLVM will automatically provide each one with an increasing, unique numeric suffix. Local value names for instructions are purely optional, but it makes it much easier to read the IR dumps.</p>
-<p>LLVM的优点之一是指令的名字仅仅只是一个提示。例如，如果上面的代码生成了多条“<tt class="docutils literal"><span class="pre">addtmp</span></tt>”指令，LLVM会自动给它们追加一个不断自增的、唯一的数字后缀。指令的<span class="unsure">local value name</span>不是必须的，但它会让</p>
-<p><a class="reference external" href="http://llvm.org/docs/LangRef.html#instref">LLVM指令</a>都必须遵循严格的限制：例如，<a class="reference external" href="http://llvm.org/docs/LangRef.html#i_add"><tt class="docutils literal"><span class="pre">add</span></tt>指令</a>的<tt class="docutils literal"><span class="pre">Left</span></tt>和<tt class="docutils literal"><span class="pre">Right</span></tt>操作数必须同属一个类型，结果的类型则必须与操作数的类型相容。由于在Kaleidoscope中只有双精度浮点数，生成<tt class="docutils literal"><span class="pre">add</span></tt>、<tt class="docutils literal"><span class="pre">sub</span></tt>和<tt class="docutils literal"><span class="pre">mul</span></tt>指令的代码简化了许多。</p>
+<p>在上面的例子中，LLVM的<tt class="docutils literal"><span class="pre">Builder</span></tt>类逐渐开始凸显出自身的价值。你只需想清楚该用哪些操作数（即此处的<tt class="docutils literal"><span class="pre">L</span></tt>和<tt class="docutils literal"><span class="pre">R</span></tt>）生成哪条指令（通过调用<tt class="docutils literal"><span class="pre">CreateFAdd</span></tt>等方法）即可，至于新指令该插入到什么位置，交给<tt class="docutils literal"><span class="pre">IRBuilder</span></tt>就可以了。此外，如果需要，你还可以给生成的指令指定一个名字。</p>
+<p>LLVM的优点之一在于此处的指令名只是一个提示。举个例子，假设上述代码生成了多条“<tt class="docutils literal"><span class="pre">addtmp</span></tt>”指令，LLVM会自动给每条指令的名字追加一个自增的唯一数字后缀。指令的<span class="unsure">local value name</span>完全是可选的，但它能大大提升dump出来的IR代码的可读性。</p>
+<p><a class="reference external" href="http://llvm.org/docs/LangRef.html#instref">LLVM指令</a>遵循严格的约束：例如，<a class="reference external" href="http://llvm.org/docs/LangRef.html#i_add"><tt class="docutils literal"><span class="pre">add</span></tt>指令</a>的<tt class="docutils literal"><span class="pre">Left</span></tt>、<tt class="docutils literal"><span class="pre">Right</span></tt>操作数必须同属一个类型，结果的类型则必须与操作数的类型相容。由于Kaleidoscope中的值都是双精度浮点数，<tt class="docutils literal"><span class="pre">add</span></tt>、<tt class="docutils literal"><span class="pre">sub</span></tt>和<tt class="docutils literal"><span class="pre">mul</span></tt>指令的代码得以大大简化。</p>
 <div class="compound">
-<p class="compound-first">On the other hand, LLVM specifies that the <a class="reference external" href="http://llvm.org/docs/LangRef.html#i_fcmp">fcmp instruction</a> always returns an &#8216;<tt class="docutils literal"><span class="pre">i1</span></tt>&#8216; value (a one bit integer). The problem with this is that Kaleidoscope wants the value to be a 0.0 or 1.0 value. In order to get these semantics, we combine the fcmp instruction with a <a class="reference external" href="http://llvm.org/docs/LangRef.html#i_uitofp">uitofp instruction</a>. This instruction converts its input integer into a floating point value by treating the input as an unsigned value. In contrast, if we used the <a class="reference external" href="http://llvm.org/docs/LangRef.html#i_sitofp">sitofp instruction</a>, the Kaleidoscope &#8216;&lt;&#8217; operator would return 0.0 and -1.0, depending on the input value.</p>
+<p class="compound-first">然而，LLVM要求<a class="reference external" href="http://llvm.org/docs/LangRef.html#i_fcmp"><tt class="docutils literal"><span class="pre">fcmp</span></tt>指令</a>的返回值类型必须是‘<tt class="docutils literal"><span class="pre">i1</span></tt>’（单比特整数）。问题在于Kaleidoscope只能接受<tt class="docutils literal"><span class="pre">0.0</span></tt>或<tt class="docutils literal"><span class="pre">1.0</span></tt>。为了弥合语义上的差异，我们给<tt class="docutils literal"><span class="pre">fcmp</span></tt>指令配上一条<a class="reference external" href="http://llvm.org/docs/LangRef.html#i_uitofp"><tt class="docutils literal"><span class="pre">uitofp</span></tt>指令</a>。这条指令会将输入的整数视作无符号数，并将之转换成浮点数。相应地，如果用的是<a class="reference external" href="http://llvm.org/docs/LangRef.html#i_sitofp"><tt class="docutils literal"><span class="pre">sitofp</span></tt>指令</a>，Kaleidoscope的‘<tt class="docutils literal"><span class="pre">&lt;</span></tt>’运算符将视输入的不同而返回<tt class="docutils literal"><span class="pre">0.0</span></tt>或<tt class="docutils literal"><span class="pre">-1.0</span></tt>。</p>
 <div class="compound-middle highlight-cpp"><div class="highlight"><pre><span class="n">Value</span> <span class="o">*</span><span class="n">CallExprAST</span><span class="o">::</span><span class="n">Codegen</span><span class="p">()</span> <span class="p">{</span>
   <span class="c1">// Look up the name in the global module table.</span>
   <span class="n">Function</span> <span class="o">*</span><span class="n">CalleeF</span> <span class="o">=</span> <span class="n">TheModule</span><span class="o">-&gt;</span><span class="n">getFunction</span><span class="p">(</span><span class="n">Callee</span><span class="p">);</span>
@@ -152,13 +151,13 @@
 <span class="p">}</span>
 </pre></div>
 </div>
-<p class="compound-last">Code generation for function calls is quite straightforward with LLVM. The code above initially does a function name lookup in the LLVM Module&#8217;s symbol table. Recall that the LLVM Module is the container that holds all of the functions we are JIT&#8217;ing. By giving each function the same name as what the user specifies, we can use the LLVM symbol table to resolve function names for us.</p>
+<p class="compound-last">函数调用的代码生成非常直截了当。上述代码开头的几行是在LLVM <tt class="docutils literal"><span class="pre">Module</span></tt>的符号表中查找函数名。如前文所述，LLVM <tt class="docutils literal"><span class="pre">Module</span></tt>是个容器，待处理的函数全都在里面。只要保证各函数的名字与用户指定的函数名一致，我们就可以利用LLVM的符号表替我们完成函数名的解析。</p>
 </div>
-<p>Once we have the function to call, we recursively codegen each argument that is to be passed in, and create an LLVM <a class="reference external" href="http://llvm.org/docs/LangRef.html#i_call">call instruction</a>. Note that LLVM uses the native C calling conventions by default, allowing these calls to also call into standard library functions like &#8220;sin&#8221; and &#8220;cos&#8221;, with no additional effort.</p>
-<p>This wraps up our handling of the four basic expressions that we have so far in Kaleidoscope. Feel free to go in and add some more. For example, by browsing the <a class="reference external" href="http://llvm.org/docs/LangRef.html">LLVM language reference</a> you&#8217;ll find several other interesting instructions that are really easy to plug into our basic framework.</p>
+<p>拿到待调用的函数之后，就递归地生成传入的各个参数的代码，并创建一条LLVM <a class="reference external" href="http://llvm.org/docs/LangRef.html#i_call"><tt class="docutils literal"><span class="pre">call</span></tt>指令</a>。注意，LLVM默认采用本地的C调用规范，这样以来，就可以毫不费力地调用标准库中的“<tt class="docutils literal"><span class="pre">sin</span></tt>”、“<tt class="docutils literal"><span class="pre">cos</span></tt>”等函数了。</p>
+<p>Kaleidoscope中的四种基本表达式的代码生成就介绍完了。尽情地添枝加叶去吧。去试试<a class="reference external" href="http://llvm.org/docs/LangRef.html">LLVM语言参考</a>上的各种千奇百怪的指令，以当前的基本框架为基础，支持这些指令易如反掌。</p>
 </div>
 <div class="section" id="chapter-3-full-code">
-<span id="id16"></span><h2>完整代码<a class="headerlink" href="#chapter-3-full-code" title="永久链接至标题">¶</a></h2>
+<span id="id12"></span><h2>完整代码<a class="headerlink" href="#chapter-3-full-code" title="永久链接至标题">¶</a></h2>
 <div class="highlight-cpp"><div class="highlight"><pre><span class="c1">// To build this:</span>
 <span class="c1">// See example below.</span>
 
