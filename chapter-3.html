@@ -32,7 +32,7 @@
       </div><div class="content container-fluid">
         <div class="row-fluid"><div class="document span9"><article >
                 <div class="documentwrapper"><div class="body"><div class="section" id="llvm-ir">
-<h1>第三章 LLVM IR代码生成<a class="headerlink" href="#llvm-ir" title="永久链接至标题">¶</a></h1>
+<span id="chapter-3"></span><h1>第三章 LLVM IR代码生成<a class="headerlink" href="#llvm-ir" title="永久链接至标题">¶</a></h1>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -156,8 +156,92 @@
 <p>拿到待调用的函数之后，就递归地生成传入的各个参数的代码，并创建一条LLVM <a class="reference external" href="http://llvm.org/docs/LangRef.html#i_call"><tt class="docutils literal"><span class="pre">call</span></tt>指令</a>。注意，LLVM默认采用本地的C调用规范，这样以来，就可以毫不费力地调用标准库中的“<tt class="docutils literal"><span class="pre">sin</span></tt>”、“<tt class="docutils literal"><span class="pre">cos</span></tt>”等函数了。</p>
 <p>Kaleidoscope中的四种基本表达式的代码生成就介绍完了。尽情地添枝加叶去吧。去试试<a class="reference external" href="http://llvm.org/docs/LangRef.html">LLVM语言参考</a>上的各种千奇百怪的指令，以当前的基本框架为基础，支持这些指令易如反掌。</p>
 </div>
+<div class="section" id="id12">
+<h2>函数的代码生成<a class="headerlink" href="#id12" title="永久链接至标题">¶</a></h2>
+<div class="compound">
+<p class="compound-first">函数原型和函数的代码生成比较繁琐，相关代码不及表达式的代码生成来得优雅，不过却刚好可以用于演示一些重要概念。首先，我们来看看函数原型的代码生成过程：函数定义和外部函数声明都依赖于它。这部分代码一开始是这样的：</p>
+<div class="compound-middle highlight-cpp"><div class="highlight"><pre><span class="n">Function</span> <span class="o">*</span><span class="n">PrototypeAST</span><span class="o">::</span><span class="n">Codegen</span><span class="p">()</span> <span class="p">{</span>
+  <span class="c1">// Make the function type:  double(double,double) etc.</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Type</span><span class="o">*&gt;</span> <span class="n">Doubles</span><span class="p">(</span><span class="n">Args</span><span class="p">.</span><span class="n">size</span><span class="p">(),</span>
+                             <span class="n">Type</span><span class="o">::</span><span class="n">getDoubleTy</span><span class="p">(</span><span class="n">getGlobalContext</span><span class="p">()));</span>
+  <span class="n">FunctionType</span> <span class="o">*</span><span class="n">FT</span> <span class="o">=</span> <span class="n">FunctionType</span><span class="o">::</span><span class="n">get</span><span class="p">(</span><span class="n">Type</span><span class="o">::</span><span class="n">getDoubleTy</span><span class="p">(</span><span class="n">getGlobalContext</span><span class="p">()),</span>
+                                       <span class="n">Doubles</span><span class="p">,</span> <span class="kc">false</span><span class="p">);</span>
+
+  <span class="n">Function</span> <span class="o">*</span><span class="n">F</span> <span class="o">=</span> <span class="n">Function</span><span class="o">::</span><span class="n">Create</span><span class="p">(</span><span class="n">FT</span><span class="p">,</span> <span class="n">Function</span><span class="o">::</span><span class="n">ExternalLinkage</span><span class="p">,</span> <span class="n">Name</span><span class="p">,</span> <span class="n">TheModule</span><span class="p">);</span>
+</pre></div>
+</div>
+<p class="compound-last">短短几行暗藏玄机。首先需要注意的是该函数的返回值类型是“<tt class="docutils literal"><span class="pre">Function*</span></tt>”而不是“<tt class="docutils literal"><span class="pre">Value*</span></tt>”。“函数原型”描述的是函数的对外接口（而不是某表达式计算出的值），返回代码生成过程中与之相对应的LLVM <tt class="docutils literal"><span class="pre">Function</span></tt>自然也合情合理。</p>
+</div>
+<p><tt class="docutils literal"><span class="pre">FunctionType::get</span></tt>调用用于为给定的函数原型创建对应的<tt class="docutils literal"><span class="pre">FunctionType</span></tt>对象。在Kaleidoscope中，函数的参数全部都是<tt class="docutils literal"><span class="pre">double</span></tt>，因此第一行创建了一个包含“N”个LLVM <tt class="docutils literal"><span class="pre">double</span></tt>的<tt class="docutils literal"><span class="pre">vector</span></tt>。随后，<tt class="docutils literal"><span class="pre">FunctionType::get</span></tt>方法以这“N”个<tt class="docutils literal"><span class="pre">double</span></tt>为参数类型、以单个<tt class="docutils literal"><span class="pre">double</span></tt>为返回值类型，创建出一个参数个数不可变（最后一个参数<tt class="docutils literal"><span class="pre">false</span></tt>就是这个意思）的函数类型。注意，和常数一样，LLVM中的类型对象也是单例，应该用“<tt class="docutils literal"><span class="pre">get</span></tt>”而不是“<tt class="docutils literal"><span class="pre">new</span></tt>”来获取。</p>
+<p>最后一行实际上创建的是与该函数原型相对应的函数。其中包含了类型、链接方式和函数名等信息，还指定了该函数待插入的模块。“<a class="reference external" href="http://llvm.org/docs/LangRef.html#linkage"><tt class="docutils literal"><span class="pre">ExternalLinkage</span></tt></a>”表示该函数可能定义于当前模块之外，且/或可以被当前模块之外的函数调用。<tt class="docutils literal"><span class="pre">Name</span></tt>是用户指定的函数名：如上述代码中的调用所示，既然将函数定义在“<tt class="docutils literal"><span class="pre">TheModule</span></tt>”内，函数名自然也注册在“<tt class="docutils literal"><span class="pre">TheModule</span></tt>”的符号表内。</p>
+<div class="highlight-cpp"><div class="highlight"><pre>  <span class="c1">// If F conflicted, there was already something named &#39;Name&#39;.  If it has a</span>
+  <span class="c1">// body, don&#39;t allow redefinition or reextern.</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">F</span><span class="o">-&gt;</span><span class="n">getName</span><span class="p">()</span> <span class="o">!=</span> <span class="n">Name</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// Delete the one we just made and get the existing one.</span>
+    <span class="n">F</span><span class="o">-&gt;</span><span class="n">eraseFromParent</span><span class="p">();</span>
+    <span class="n">F</span> <span class="o">=</span> <span class="n">TheModule</span><span class="o">-&gt;</span><span class="n">getFunction</span><span class="p">(</span><span class="n">Name</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>在处理名称冲突时，<tt class="docutils literal"><span class="pre">Module</span></tt>的符号表与<tt class="docutils literal"><span class="pre">Function</span></tt>的符号表类似：在模块中添加新函数时，如果发现函数名与符号表中现有的名称重复，新函数会被默默地重命名。上述代码用于检测函数有否被定义过。</p>
+<p>对于Kaleidoscope，在两种情况下允许重定义函数：第一，允许对同一个函数进行多次<tt class="docutils literal"><span class="pre">extern</span></tt>声明，前提是所有声明中的函数原型保持一致（由于只有一种参数类型，我们只需要检查参数的个数是否匹配即可）。第二，允许先对函数进行<tt class="docutils literal"><span class="pre">extern</span></tt>声明，再定义函数体。这样一来，才能定义出相互递归调用的函数。</p>
+<p>为了实现这些功能，上述代码首先检查是否存在函数名冲突。如果存在，（调用<tt class="docutils literal"><span class="pre">eraseFunctionParent</span></tt>）将刚刚创建的函数对象删除，然后调用<tt class="docutils literal"><span class="pre">getFunction</span></tt>获取与函数名相对应的函数对象。请注意，LLVM中有很多<tt class="docutils literal"><span class="pre">erase</span></tt>形式和<tt class="docutils literal"><span class="pre">remove</span></tt>形式的API。<tt class="docutils literal"><span class="pre">remove</span></tt>形式的API只会将对象从父对象处摘除并返回。<tt class="docutils literal"><span class="pre">erase</span></tt>形式的API不仅会摘除对象，还会将之删除。</p>
+<div class="highlight-cpp"><div class="highlight"><pre>    <span class="c1">// If F already has a body, reject this.</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">F</span><span class="o">-&gt;</span><span class="n">empty</span><span class="p">())</span> <span class="p">{</span>
+      <span class="n">ErrorF</span><span class="p">(</span><span class="s">&quot;redefinition of function&quot;</span><span class="p">);</span>
+      <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="c1">// If F took a different number of args, reject.</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">F</span><span class="o">-&gt;</span><span class="n">arg_size</span><span class="p">()</span> <span class="o">!=</span> <span class="n">Args</span><span class="p">.</span><span class="n">size</span><span class="p">())</span> <span class="p">{</span>
+      <span class="n">ErrorF</span><span class="p">(</span><span class="s">&quot;redefinition of function with different # args&quot;</span><span class="p">);</span>
+      <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="p">}</span>
+</pre></div>
+</div>
+<p>为了在上述代码的基础上进一步进行校验，我们来看看之前定义的函数对象是否为“空”。换言之，也就是看看该函数有没有定义基本块。没有基本块就意味着该函数尚未定义函数体，只是一个前导声明。如果已经定义了函数体，就不能继续下去了，抛出错误予以拒绝。如果之前的函数对象只是个“<tt class="docutils literal"><span class="pre">extern</span></tt>”声明，则检查该函数的参数个数是否与当前的参数个数相符。如果不符，抛出错误。</p>
+<div class="highlight-cpp"><div class="highlight"><pre>  <span class="c1">// Set names for all arguments.</span>
+  <span class="kt">unsigned</span> <span class="n">Idx</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="k">for</span> <span class="p">(</span><span class="n">Function</span><span class="o">::</span><span class="n">arg_iterator</span> <span class="n">AI</span> <span class="o">=</span> <span class="n">F</span><span class="o">-&gt;</span><span class="n">arg_begin</span><span class="p">();</span> <span class="n">Idx</span> <span class="o">!=</span> <span class="n">Args</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+       <span class="o">++</span><span class="n">AI</span><span class="p">,</span> <span class="o">++</span><span class="n">Idx</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">AI</span><span class="o">-&gt;</span><span class="n">setName</span><span class="p">(</span><span class="n">Args</span><span class="p">[</span><span class="n">Idx</span><span class="p">]);</span>
+
+    <span class="c1">// Add arguments to variable symbol table.</span>
+    <span class="n">NamedValues</span><span class="p">[</span><span class="n">Args</span><span class="p">[</span><span class="n">Idx</span><span class="p">]]</span> <span class="o">=</span> <span class="n">AI</span><span class="p">;</span>
+  <span class="p">}</span>
+</pre></div>
+</div>
+<p>最后，遍历函数原型的所有参数，为这些LLVM <tt class="docutils literal"><span class="pre">Argument</span></tt>对象逐一设置参数名，并将这些参数注册倒<tt class="docutils literal"><span class="pre">NamedValues</span></tt>映射表内，以备AST节点类<tt class="docutils literal"><span class="pre">VariableExprAST</span></tt>稍后使用。完事之后，将<tt class="docutils literal"><span class="pre">Function</span></tt>对象返回。注意，此处并不检查参数名冲突与否（说的是“<tt class="docutils literal"><span class="pre">extern</span> <span class="pre">foo(a</span> <span class="pre">b</span> <span class="pre">a</span></tt>”这样的情况）。按照之前的讲解，要加上这一重检查易如反掌。</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span class="n">Function</span> <span class="o">*</span><span class="n">FunctionAST</span><span class="o">::</span><span class="n">Codegen</span><span class="p">()</span> <span class="p">{</span>
+  <span class="n">NamedValues</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span>
+
+  <span class="n">Function</span> <span class="o">*</span><span class="n">TheFunction</span> <span class="o">=</span> <span class="n">Proto</span><span class="o">-&gt;</span><span class="n">Codegen</span><span class="p">();</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">TheFunction</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>下面是函数定义的代码生成过程，开场白很简单：生成函数原型（<tt class="docutils literal"><span class="pre">Proto</span></tt>）的代码并进行校验。与此同时，需要清空<tt class="docutils literal"><span class="pre">NamedValues</span></tt>映射表，确保其中不会残留之前代码生成过程中的产生的内容。函数原型的代码生成完毕后，一个现成的LLVM <tt class="docutils literal"><span class="pre">Function</span></tt>对象就到手了。</p>
+<div class="highlight-cpp"><div class="highlight"><pre>  <span class="c1">// Create a new basic block to start insertion into.</span>
+  <span class="n">BasicBlock</span> <span class="o">*</span><span class="n">BB</span> <span class="o">=</span> <span class="n">BasicBlock</span><span class="o">::</span><span class="n">Create</span><span class="p">(</span><span class="n">getGlobalContext</span><span class="p">(),</span> <span class="s">&quot;entry&quot;</span><span class="p">,</span> <span class="n">TheFunction</span><span class="p">);</span>
+  <span class="n">Builder</span><span class="p">.</span><span class="n">SetInsertPoint</span><span class="p">(</span><span class="n">BB</span><span class="p">);</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="n">Value</span> <span class="o">*</span><span class="n">RetVal</span> <span class="o">=</span> <span class="n">Body</span><span class="o">-&gt;</span><span class="n">Codegen</span><span class="p">())</span> <span class="p">{</span>
+</pre></div>
+</div>
+<p>现在该开始设置<tt class="docutils literal"><span class="pre">Builder</span></tt>对象了。第一行新建了一个<a class="reference external" href="http://en.wikipedia.org/wiki/Basic_block">基本块</a>对象（名为“entry”），稍后该对象将被插入<tt class="docutils literal"><span class="pre">TheFunction</span></tt>。第二行告诉<tt class="docutils literal"><span class="pre">Builder</span></tt>，后续的新指令应该从刚刚新建的基本块的末尾处插入。LLVM的基本块是用于定义<a class="reference external" href="http://en.wikipedia.org/wiki/Control_flow_graph">控制流图（Control Flow Graph）</a>的重要部件。当前我们还不涉及到控制流，所以所有的函数都只有一个基本块。这个问题我们留到<a class="reference internal" href="chapter-5.html#chapter-5"><em>第五章</em></a>再改 :-)</p>
+<div class="highlight-cpp"><div class="highlight"><pre>  <span class="k">if</span> <span class="p">(</span><span class="n">Value</span> <span class="o">*</span><span class="n">RetVal</span> <span class="o">=</span> <span class="n">Body</span><span class="o">-&gt;</span><span class="n">Codegen</span><span class="p">())</span> <span class="p">{</span>
+    <span class="c1">// Finish off the function.</span>
+    <span class="n">Builder</span><span class="p">.</span><span class="n">CreateRet</span><span class="p">(</span><span class="n">RetVal</span><span class="p">);</span>
+
+    <span class="c1">// Validate the generated code, checking for consistency.</span>
+    <span class="n">verifyFunction</span><span class="p">(</span><span class="o">*</span><span class="n">TheFunction</span><span class="p">);</span>
+
+    <span class="k">return</span> <span class="n">TheFunction</span><span class="p">;</span>
+  <span class="p">}</span>
+</pre></div>
+</div>
+</div>
 <div class="section" id="chapter-3-full-code">
-<span id="id12"></span><h2>完整代码<a class="headerlink" href="#chapter-3-full-code" title="永久链接至标题">¶</a></h2>
+<span id="id15"></span><h2>完整代码<a class="headerlink" href="#chapter-3-full-code" title="永久链接至标题">¶</a></h2>
 <div class="highlight-cpp"><div class="highlight"><pre><span class="c1">// To build this:</span>
 <span class="c1">// See example below.</span>
 
@@ -742,6 +826,7 @@
 <li><a class="reference internal" href="#id1">本章简介</a></li>
 <li><a class="reference internal" href="#id3">代码生成的准备工作</a></li>
 <li><a class="reference internal" href="#id7">表达式代码生成</a></li>
+<li><a class="reference internal" href="#id12">函数的代码生成</a></li>
 <li><a class="reference internal" href="#chapter-3-full-code">完整代码</a></li>
 </ul>
 </li>
